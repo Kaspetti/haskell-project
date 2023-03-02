@@ -21,9 +21,7 @@ instance Show Rank where
   show x = show (fromEnum x + 2)
 
 data Card = Card Rank Suit
-
-instance Show Card where
-  show (Card rank suit) = show rank ++ show suit
+  deriving (Show)
 
 data Deck = Deck [Card]
   deriving (Show)

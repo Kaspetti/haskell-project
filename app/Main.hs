@@ -7,8 +7,7 @@ import Cards
 
 main :: IO ()
 main = do
-  let card = Card Six Spades
-  print card
+  print createDeck
 
 main1 :: IO ()
 main1 = do
