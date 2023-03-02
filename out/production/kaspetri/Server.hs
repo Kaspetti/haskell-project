@@ -14,7 +14,7 @@ startServer host port = withSocketsDo $ do
   bracket
     (open addr)
     close
-    (\sock -> runServer sock [])
+    (`runServer` [])
   where
     open addr = bracketOnError
       (openSocket addr)
@@ -34,7 +34,7 @@ runServer sock clients = do
 
 runConn :: (Socket, SockAddr) -> BS.ByteString -> [SockAddr] -> IO ()
 runConn conn@(sock, addr) client clients= do
-  putStrLn $ show clients
+  print clients
 
   if client == BS.empty
     then do
@@ -47,5 +47,5 @@ runConn conn@(sock, addr) client clients= do
   else do
     msg <- recv sock 1024
     unless (BS.null msg) $ do
-      mapM_ (\c -> sendAllTo sock (client <> BS.pack ": " <> msg) c) [x | x <- clients, x /= addr]
+      mapM_ (sendAllTo sock (client <> BS.pack ": " <> msg)) [x | x <- clients, x /= addr]
     runConn conn client clients
