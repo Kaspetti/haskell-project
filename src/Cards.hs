@@ -1,4 +1,4 @@
-module Cards where
+module Cards (createDeck) where
 
 data Suit = Spades | Hearts | Clubs | Diamonds
   deriving (Enum)
@@ -25,7 +25,7 @@ data Card = Card Rank Suit
 instance Show Card where
   show (Card rank suit) = show rank ++ show suit
 
-data Deck = Deck [Card]
+newtype Deck = Deck [Card]
   deriving (Show)
 
 createDeck :: Deck
