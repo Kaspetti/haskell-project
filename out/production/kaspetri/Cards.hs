@@ -4,7 +4,7 @@ import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 
 data Suit = Spades | Hearts | Clubs | Diamonds
-  deriving (Enum)
+  deriving (Enum, Eq)
 
 instance Show Suit where
   show Spades = "S"
@@ -13,7 +13,7 @@ instance Show Suit where
   show Diamonds = "D"
 
 data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
-  deriving (Enum)
+  deriving (Enum, Eq)
 
 instance Show Rank where
   show Ten = "T"
@@ -24,6 +24,7 @@ instance Show Rank where
   show x = show (fromEnum x + 2)
 
 data Card = Card Rank Suit
+  deriving (Eq)
 
 instance Show Card where
   show (Card rank suit) = show rank ++ show suit

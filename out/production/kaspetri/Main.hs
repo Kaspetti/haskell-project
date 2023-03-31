@@ -4,11 +4,13 @@ import AsciiCreator
 import Server
 import Client
 import Cards
+import GameLogic
 
 main :: IO ()
 main = do
-  shuffledDeck <- shuffleDeck createDeck
-  print shuffledDeck
+  gameState <- newGame ["player1", "player2"]
+  let gameState' = dealCards gameState
+  print gameState'
 
 main1 :: IO ()
 main1 = do
