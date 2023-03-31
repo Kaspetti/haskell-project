@@ -7,7 +7,8 @@ import Cards
 
 main :: IO ()
 main = do
-  print createDeck
+  shuffledDeck <- shuffleDeck createDeck
+  print shuffledDeck
 
 main1 :: IO ()
 main1 = do

@@ -28,6 +28,8 @@ dependencies:
 - network
 - bytestring
 - binary
+- random
+- random-shuffle
 
 ghc-options:
 - -Wall

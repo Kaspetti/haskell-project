@@ -28,6 +28,7 @@ library
       AsciiCreator
       Cards
       Client
+      GameLogic
       Server
   other-modules:
       Paths_kaspetri
@@ -42,6 +43,8 @@ library
     , bytestring
     , filepath
     , network
+    , random
+    , random-shuffle
     , vector
   default-language: Haskell2010
 
@@ -61,6 +64,8 @@ executable kaspetri-exe
     , filepath
     , kaspetri
     , network
+    , random
+    , random-shuffle
     , vector
   default-language: Haskell2010
 
@@ -81,5 +86,7 @@ test-suite kaspetri-test
     , filepath
     , kaspetri
     , network
+    , random
+    , random-shuffle
     , vector
   default-language: Haskell2010

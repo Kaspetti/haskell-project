@@ -1,4 +1,7 @@
-module Cards where
+module Cards (createDeck, shuffleDeck, Card)where
+
+import System.Random (newStdGen)
+import System.Random.Shuffle (shuffle')
 
 data Suit = Spades | Hearts | Clubs | Diamonds
   deriving (Enum)
@@ -21,10 +24,14 @@ instance Show Rank where
   show x = show (fromEnum x + 2)
 
 data Card = Card Rank Suit
-  deriving (Show)
 
-data Deck = Deck [Card]
-  deriving (Show)
+instance Show Card where
+  show (Card rank suit) = show rank ++ show suit
 
-createDeck :: Deck
-createDeck = Deck [Card rank suit | rank <- [Two .. Ace], suit <- [Spades .. Diamonds]]
+createDeck :: [Card]
+createDeck = [Card rank suit | rank <- [Two .. Ace], suit <- [Spades .. Diamonds]]
+
+shuffleDeck :: [Card] -> IO [Card]
+shuffleDeck deck = do
+  gen <- newStdGen
+  return $ shuffle' deck (length deck) gen
