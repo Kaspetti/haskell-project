@@ -8,13 +8,18 @@ data Player = Player { name :: String, hand :: [Card] }
 data GameState = GameState { players :: [Player], deck :: [Card], discardPile :: [Card] }
   deriving (Show)
 
-newGame :: [String] -> IO GameState
+newGame :: (String, String) -> IO GameState
 newGame names = do
   shuffledDeck <- shuffleDeck createDeck
-  return GameState { players = map (\n -> Player { name = n, hand = [] }) names, deck = shuffledDeck, discardPile = [] }
+  let p1 = Player { name = fst names, hand = [] }
+  let p2 = Player { name = snd names, hand = [] }
+  return GameState { players = [p1, p2], deck = shuffledDeck, discardPile = [] }
 
-dealCards :: GameState -> GameState
-dealCards state = state { players = map (\p -> p { hand = take 10 (deck state) }) (players state), deck = drop 10 (deck state) }
+dealCards :: Int -> GameState -> GameState
+dealCards n state = do
+  let (hand1, deck') = splitAt n (deck state)
+  let (hand2, deck'') = splitAt n deck'
+  state { players = [Player { name = name (head (players state)), hand = hand (head (players state))++hand1 }, Player { name = name (players state !! 1), hand = hand (players state !! 1)++hand2 }], deck = deck'' }
 
 playCard :: Player -> Card -> GameState -> GameState
 playCard player card state = state { players = map (\p -> if p == player then p {hand = filter (/= card) (hand p)} else p) (players state), discardPile = card : discardPile state }

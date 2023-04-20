@@ -76,6 +76,7 @@ test-suite kaspetri-test
   main-is: Spec.hs
   other-modules:
       CardsSpec
+      GameLogicSpec
       Paths_kaspetri
   hs-source-dirs:
       test

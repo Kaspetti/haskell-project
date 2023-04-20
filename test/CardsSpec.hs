@@ -12,6 +12,7 @@ spec = do
       length createDeck `shouldBe` 52
     it "deck has unique cards" $ do
       length (nub createDeck) `shouldBe` 52
+  describe "shuffleDeck" $ do
     it "shuffled deck has same cards as unshuffled deck" $ do
       shuffledDeck <- shuffleDeck createDeck
       shuffledDeck `shouldMatchList` createDeck
