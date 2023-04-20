@@ -42,6 +42,7 @@ library
     , binary
     , bytestring
     , filepath
+    , hspec
     , network
     , random
     , random-shuffle
@@ -62,6 +63,7 @@ executable kaspetri-exe
     , binary
     , bytestring
     , filepath
+    , hspec
     , kaspetri
     , network
     , random
@@ -73,6 +75,7 @@ test-suite kaspetri-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      CardsSpec
       Paths_kaspetri
   hs-source-dirs:
       test
@@ -84,6 +87,7 @@ test-suite kaspetri-test
     , binary
     , bytestring
     , filepath
+    , hspec
     , kaspetri
     , network
     , random

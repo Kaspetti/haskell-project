@@ -30,6 +30,7 @@ dependencies:
 - binary
 - random
 - random-shuffle
+- hspec
 
 ghc-options:
 - -Wall
