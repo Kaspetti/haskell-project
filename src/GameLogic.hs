@@ -19,7 +19,9 @@ dealCards :: Int -> GameState -> GameState
 dealCards n state = do
   let (hand1, deck') = splitAt n (deck state)
   let (hand2, deck'') = splitAt n deck'
-  state { players = [Player { name = name (head (players state)), hand = hand (head (players state))++hand1 }, Player { name = name (players state !! 1), hand = hand (players state !! 1)++hand2 }], deck = deck'' }
+  let p1 = Player {name = name (head (players state)), hand = hand1}
+  let p2 = Player {name = name (players state !! 1), hand = hand2}
+  state { players = [p1, p2], deck = deck'' }
 
 playCard :: Player -> Card -> GameState -> GameState
 playCard player card state = state { players = map (\p -> if p == player then p {hand = filter (/= card) (hand p)} else p) (players state), discardPile = card : discardPile state }
