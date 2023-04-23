@@ -16,6 +16,7 @@ spec = do
       name (players gameState !! 1) `shouldBe` "player2"
       length (deck gameState) `shouldBe` 52
       length (nub (deck gameState)) `shouldBe` 52
+      
   describe "dealCards" $ do
     it "should deal 10 cards to each player" $ do
       gameState <- newGame ("player1", "player2")
@@ -27,11 +28,13 @@ spec = do
       length hand2 `shouldBe` 10
       length deck' `shouldBe` 32
       hand1 `shouldNotBe` hand2
+      
   describe "shuffleDeck" $ do
     it "should shuffle the deck. Each shuffle should be different" $ do
       deck1 <- shuffleDeck createDeck
       deck2 <- shuffleDeck createDeck
       deck1 `shouldNotBe` deck2
+      
   describe "isValidMove" $ do
     it "should check if a move is valid" $ do
       --Setup
