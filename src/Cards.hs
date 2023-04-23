@@ -1,4 +1,4 @@
-module Cards (createDeck, shuffleDeck, Card)where
+module Cards (createDeck, shuffleDeck, Card(..), Rank(..), Suit(..)) where
 
 import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
@@ -31,6 +31,8 @@ instance Show Card where
 
 createDeck :: [Card]
 createDeck = [Card rank suit | rank <- [Two .. Ace], suit <- [Spades .. Diamonds]]
+
+test = Card Ace Hearts
 
 shuffleDeck :: [Card] -> IO [Card]
 shuffleDeck deck = do
