@@ -41,10 +41,10 @@ isValidMove move state = do
     Left ("Invalid move: " ++ show total)
   where
     countTotal :: Card -> Move -> Int
-    countTotal topCard' [] = fromEnum (rank topCard') + 1
+    countTotal topCard' [] = cardValue topCard'
     countTotal topCard' ((operator, card):xs) = case operator of
-      Plus -> countTotal topCard' xs + fromEnum (rank card) + 1
-      Minus -> countTotal topCard' xs - fromEnum (rank card) + 1
+      Plus -> countTotal topCard' xs + cardValue card
+      Minus -> countTotal topCard' xs - cardValue card
 
 playCard :: Player -> Card -> GameState -> GameState
 playCard player card state = state { players = map (\p -> if p == player then p {hand = filter (/= card) (hand p)} else p) (players state), discardPile = card : discardPile state }

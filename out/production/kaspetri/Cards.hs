@@ -1,4 +1,4 @@
-module Cards (createDeck, shuffleDeck, Card(..), Rank(..), Suit(..)) where
+module Cards (createDeck, shuffleDeck, cardValue, Card(..), Rank(..), Suit(..)) where
 
 import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
@@ -28,6 +28,11 @@ data Card = Card {rank :: Rank, suit :: Suit}
 
 instance Show Card where
   show (Card rank suit) = show rank ++ show suit
+
+
+cardValue :: Card -> Int
+cardValue (Card rank _) = fromEnum rank + 1
+
 
 createDeck :: [Card]
 createDeck = [Card rank suit | rank <- [Ace .. King], suit <- [Spades .. Diamonds]]
