@@ -11,9 +11,7 @@ data GameState = GameState { players :: [Player], deck :: [Card], discardPile ::
 
 data Operator = Plus | Minus
 
-newtype Operation = Operator Card
-
-type Move = [Operation]
+type Move = [(Operator, Card)]
 
 
 newGame :: (String, String) -> IO GameState
@@ -33,9 +31,20 @@ dealCards n state = do
   state { players = [p1, p2], deck = deck'' }
 
 
-isValidMove :: Move -> GameState -> (Bool, String)
-isValidMove = undefined
-
+isValidMove :: Move -> GameState -> Either String ()
+isValidMove move state = do
+  let topCard = head (discardPile state)
+  let total = countTotal topCard move
+  if total == 10 then
+    return ()
+  else
+    Left ("Invalid move: " ++ show total)
+  where
+    countTotal :: Card -> Move -> Int
+    countTotal topCard' [] = fromEnum (rank topCard') + 1
+    countTotal topCard' ((operator, card):xs) = case operator of
+      Plus -> countTotal topCard' xs + fromEnum (rank card) + 1
+      Minus -> countTotal topCard' xs - fromEnum (rank card) + 1
 
 playCard :: Player -> Card -> GameState -> GameState
 playCard player card state = state { players = map (\p -> if p == player then p {hand = filter (/= card) (hand p)} else p) (players state), discardPile = card : discardPile state }

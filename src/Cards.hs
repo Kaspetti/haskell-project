@@ -12,7 +12,7 @@ instance Show Suit where
   show Clubs = "C"
   show Diamonds = "D"
 
-data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
+data Rank = Ace | Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King
   deriving (Enum, Eq)
 
 instance Show Rank where
@@ -21,18 +21,17 @@ instance Show Rank where
   show Queen = "Q"
   show King = "K"
   show Ace = "A"
-  show x = show (fromEnum x + 2)
+  show x = show (fromEnum x + 1)
 
-data Card = Card Rank Suit
+data Card = Card {rank :: Rank, suit :: Suit}
   deriving (Eq)
 
 instance Show Card where
   show (Card rank suit) = show rank ++ show suit
 
 createDeck :: [Card]
-createDeck = [Card rank suit | rank <- [Two .. Ace], suit <- [Spades .. Diamonds]]
+createDeck = [Card rank suit | rank <- [Ace .. King], suit <- [Spades .. Diamonds]]
 
-test = Card Ace Hearts
 
 shuffleDeck :: [Card] -> IO [Card]
 shuffleDeck deck = do

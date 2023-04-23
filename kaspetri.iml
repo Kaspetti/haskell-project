@@ -36,7 +36,6 @@
     <orderEntry type="library" name="random-shuffle-0.0.4" level="project" />
     <orderEntry type="library" name="splitmix-0.1.0.4" level="project" />
     <orderEntry type="library" name="MonadRandom-0.5.3" level="project" />
-    <orderEntry type="library" name="Win32-2.12.0.1" level="project" />
     <orderEntry type="library" name="transformers-compat-0.7.2" level="project" />
     <orderEntry type="library" name="hspec-2.9.7" level="project" />
     <orderEntry type="library" name="QuickCheck-2.14.2" level="project" />
@@ -59,5 +58,7 @@
     <orderEntry type="library" name="ghci-9.2.6" level="project" />
     <orderEntry type="library" name="hpc-0.6.1.0" level="project" />
     <orderEntry type="library" name="process-1.6.16.0" level="project" />
+    <orderEntry type="library" name="unix-2.7.2.2" level="project" />
+    <orderEntry type="library" name="terminfo-0.4.1.5" level="project" />
   </component>
 </module>

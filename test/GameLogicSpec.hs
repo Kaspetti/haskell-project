@@ -39,12 +39,10 @@ spec = do
       let discardPile = [Card Ace Hearts]
       let gameState' = gameState {discardPile = discardPile }
       --Test 1
-      let move = [Plus (Card Two Hearts), Plus (Card Seven Hearts)]
-      let (valid, error) = isValidMove move gameState'
-      valid `shouldBe` True
-      error `shouldBe` ""
+      let move = [(Plus, Card Two Hearts), (Plus, Card Seven Hearts)]
+      let error = isValidMove move gameState'
+      error `shouldBe` Right ()
       --Test 2
-      let move = [Plus (Card Two Hearts), Plus (Card Eight Hearts)]
-      let (valid, error) = isValidMove move gameState'
-      valid `shouldBe` False
-      error `shouldBe` "Invalid move: Total is 11"
+      let move = [(Plus, Card Two Hearts), (Plus, Card Eight Hearts)]
+      let error = isValidMove move gameState'
+      error `shouldBe` Left "Invalid move: 11"
