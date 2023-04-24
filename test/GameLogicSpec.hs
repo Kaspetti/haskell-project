@@ -40,16 +40,19 @@ spec = do
     it "should check if a move is valid" $ do
       --Setup
       gameState <- newGame ("player1", "player2") (Just 0)
-      let discardPile = [Card Ace Hearts]
-      let gameState' = gameState {discardPile = discardPile }
+      let gameState' = dealCards 10 gameState
       --Test 1
-      let move = [(Plus, Card Two Hearts), (Plus, Card Seven Hearts)]
-      let error = isValidMove move gameState'
+      let move = [(Plus, Card Eight Hearts), (Minus, Card Three Spades)]
+      let error = isValidMove move 0 gameState'
       error `shouldBe` Right ()
       --Test 2
-      let move = [(Plus, Card Two Hearts), (Plus, Card Eight Hearts)]
-      let error = isValidMove move gameState'
+      let move = [(Plus, Card Queen Clubs), (Minus, Card Six Diamonds)]
+      let error = isValidMove move 0 gameState'
       error `shouldBe` Left "Invalid move: 11"
+      --Test 3
+      let move = [(Plus, Card Five Diamonds)]
+      let error = isValidMove move 0 gameState'
+      error `shouldBe` Left "Invalid move: Player does not have specified cards."
 
   describe "playMove" $ do
     it "checks if the move is valid and plays it if it is" $ do

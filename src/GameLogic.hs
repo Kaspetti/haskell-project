@@ -2,8 +2,8 @@ module GameLogic where
 
 import Cards
 import System.Random (randomIO)
-import Data.List (nub, (\\))
-import Data.List.Extra (replace)
+import Data.List ((\\))
+import Control.Monad (guard)
 
 data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
@@ -38,25 +38,35 @@ dealCards n state = do
   state { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
 
 
-isValidMove :: Move -> GameState -> Either String ()
-isValidMove move state = do
+isSubsetOf :: Eq a => [a] -> [a] -> Bool
+isSubsetOf [] _ = True
+isSubsetOf (x:xs) ys = x `elem` ys && isSubsetOf xs ys
+
+
+isValidMove :: Move -> Int -> GameState -> Either String ()
+isValidMove move player state = do
   let topCard = last (discardPile state)
   let total = countTotal topCard move
-  if total == 10 then
-    return ()
+  let playerCards = hand (players state !! player)
+
+  if not (isSubsetOf (map snd move) playerCards) then
+    Left "Invalid move: Player does not have specified cards."
   else
-    Left ("Invalid move: " ++ show total)
-  where
-    countTotal :: Card -> Move -> Int
-    countTotal topCard' [] = cardValue topCard'
-    countTotal topCard' ((operator, card):xs) = case operator of
-      Plus -> countTotal topCard' xs + cardValue card
-      Minus -> countTotal topCard' xs - cardValue card
+    if total == 10 then
+      return ()
+    else
+      Left ("Invalid move: " ++ show total)
+    where
+      countTotal :: Card -> Move -> Int
+      countTotal topCard' [] = cardValue topCard'
+      countTotal topCard' ((operator, card):xs) = case operator of
+        Plus -> countTotal topCard' xs + cardValue card
+        Minus -> countTotal topCard' xs - cardValue card
 
 
 playMove :: Move -> Int -> GameState -> Either String GameState
 playMove move player state = do
-  case isValidMove move state of
+  case isValidMove move player state of
     Right () -> do
       let cards = map snd move
       let player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
