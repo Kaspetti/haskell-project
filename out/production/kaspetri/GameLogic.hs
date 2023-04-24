@@ -14,13 +14,16 @@ data Operator = Plus | Minus
 type Move = [(Operator, Card)]
 
 
-newGame :: (String, String) -> IO GameState
-newGame names = do
-  seed <- randomIO :: IO Int
-  let shuffledDeck = shuffleDeck createDeck seed
+newGame :: (String, String) -> Maybe Int -> IO GameState
+newGame names seed = do
   let p1 = Player { name = fst names, hand = [] }
   let p2 = Player { name = snd names, hand = [] }
-  return GameState { players = [p1, p2], deck = shuffledDeck, discardPile = [] }
+
+  case seed of
+    Just seed' -> return GameState { players = [p1, p2], deck = shuffleDeck createDeck seed', discardPile = [] }
+    Nothing -> do
+      seed' <- randomIO
+      return GameState { players = [p1, p2], deck = shuffleDeck createDeck seed', discardPile = [] }
 
 
 dealCards :: Int -> GameState -> GameState
