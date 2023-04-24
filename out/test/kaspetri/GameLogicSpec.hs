@@ -26,7 +26,8 @@ spec = do
       let deck' = deck gameState'
       length hand1 `shouldBe` 10
       length hand2 `shouldBe` 10
-      length deck' `shouldBe` 32
+      length deck' `shouldBe` 31
+      length (discardPile gameState') `shouldBe` 1
       hand1 `shouldNotBe` hand2
 
   describe "shuffleDeck" $ do

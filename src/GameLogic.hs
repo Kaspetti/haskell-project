@@ -29,7 +29,8 @@ dealCards n state = do
   let (hand2, deck'') = splitAt n deck'
   let p1 = (head (players state)) { hand = hand1 }
   let p2 = (players state !! 1) { hand = hand2 }
-  state { players = [p1, p2], deck = deck'' }
+  let discardPile' = [head deck'']
+  state { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
 
 
 isValidMove :: Move -> GameState -> Either String ()
