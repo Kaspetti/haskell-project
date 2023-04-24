@@ -7,7 +7,7 @@ data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
 
 data GameState = GameState { players :: [Player], deck :: [Card], discardPile :: [Card] }
-  deriving (Show)
+  deriving (Show, Eq)
 
 data Operator = Plus | Minus
 
@@ -38,7 +38,7 @@ dealCards n state = do
 
 isValidMove :: Move -> GameState -> Either String ()
 isValidMove move state = do
-  let topCard = head (discardPile state)
+  let topCard = last (discardPile state)
   let total = countTotal topCard move
   if total == 10 then
     return ()
@@ -52,5 +52,8 @@ isValidMove move state = do
       Minus -> countTotal topCard' xs - cardValue card
 
 
-playMove :: Move -> Int -> GameState -> GameState
-playMove move player state = undefined
+playMove :: Move -> Int -> GameState -> Either String GameState
+playMove move player state = do
+  case isValidMove move state of
+    Right () -> Right state
+    Left error -> Left error

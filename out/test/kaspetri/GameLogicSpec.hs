@@ -53,7 +53,20 @@ spec = do
 
   describe "playMove" $ do
     it "checks if the move is valid and plays it if it is" $ do
+      --Setup
       gameState <- newGame ("player1", "player2") (Just 0)
       let gameState' = dealCards 10 gameState
+      --Test 1
+      let move = [(Plus, Card Eight Hearts), (Minus, Card Three Spades)]
+      let p1 = (head (players gameState')) {hand = [Card Seven Spades, Card Seven Clubs, Card Queen Clubs, Card Six Diamonds, Card Nine Spades, Card Ten Spades, Card Queen Diamonds, Card King Clubs]}
+      let discardPile' = discardPile gameState'++[Card Eight Hearts, Card Three Spades]
+      let gameState'' = gameState' {players = [p1, players gameState' !! 1], discardPile = discardPile'}
+      let result = playMove move 0 gameState'
+      result `shouldBe` Right gameState''
+      --Test 2
+      let move = [(Plus, Card Queen Clubs), (Minus, Card Six Diamonds)]
+      let result = playMove move 0 gameState'
+      result `shouldBe` Left "Invalid move: 11"
 
-      0 `shouldBe` 1
+      --[7S,3S,7C,QC,6D,9S,TS,QD,8H,KC]
+      --[5S]
