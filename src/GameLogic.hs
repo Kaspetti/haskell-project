@@ -1,7 +1,9 @@
 module GameLogic where
 
 import Cards
-import System.Random(randomIO)
+import System.Random (randomIO)
+import Data.List (nub, (\\))
+import Data.List.Extra (replace)
 
 data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
@@ -55,5 +57,12 @@ isValidMove move state = do
 playMove :: Move -> Int -> GameState -> Either String GameState
 playMove move player state = do
   case isValidMove move state of
-    Right () -> Right state
+    Right () -> do
+      let cards = map snd move
+      let player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
+      let discardPile' = discardPile state ++ cards
+      let players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
+      let gameState = state { players = players', discardPile = discardPile' }
+      return gameState
+
     Left error -> Left error

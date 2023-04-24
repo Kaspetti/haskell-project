@@ -41,6 +41,7 @@ library
     , base >=4.7 && <5
     , binary
     , bytestring
+    , extra
     , filepath
     , hspec
     , network
@@ -62,6 +63,7 @@ executable kaspetri-exe
     , base >=4.7 && <5
     , binary
     , bytestring
+    , extra
     , filepath
     , hspec
     , kaspetri
@@ -87,6 +89,7 @@ test-suite kaspetri-test
     , base >=4.7 && <5
     , binary
     , bytestring
+    , extra
     , filepath
     , hspec
     , kaspetri
