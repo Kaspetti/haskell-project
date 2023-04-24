@@ -1,6 +1,6 @@
 module Cards (createDeck, shuffleDeck, cardValue, Card(..), Rank(..), Suit(..)) where
 
-import System.Random (newStdGen)
+import System.Random (mkStdGen)
 import System.Random.Shuffle (shuffle')
 
 data Suit = Spades | Hearts | Clubs | Diamonds
@@ -38,7 +38,7 @@ createDeck :: [Card]
 createDeck = [Card rank suit | rank <- [Ace .. King], suit <- [Spades .. Diamonds]]
 
 
-shuffleDeck :: [Card] -> IO [Card]
-shuffleDeck deck = do
-  gen <- newStdGen
-  return $ shuffle' deck (length deck) gen
+shuffleDeck :: [Card] -> Int -> [Card]
+shuffleDeck deck seed = do
+  let gen = mkStdGen seed
+    in shuffle' deck (length deck) gen

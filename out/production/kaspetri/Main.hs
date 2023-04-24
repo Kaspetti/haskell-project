@@ -8,7 +8,10 @@ import GameLogic
 
 main :: IO ()
 main = do
-  print ""
+  gameState <- newGame ("player1", "player2")
+  gameState' <- newGame ("player1", "player2")
+  print $ deck gameState
+  print $ deck gameState'
 
 main1 :: IO ()
 main1 = do

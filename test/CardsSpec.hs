@@ -14,5 +14,5 @@ spec = do
       length (nub createDeck) `shouldBe` 52
   describe "shuffleDeck" $ do
     it "shuffled deck has same cards as unshuffled deck" $ do
-      shuffledDeck <- shuffleDeck createDeck
+      let shuffledDeck = shuffleDeck createDeck 0
       shuffledDeck `shouldMatchList` createDeck

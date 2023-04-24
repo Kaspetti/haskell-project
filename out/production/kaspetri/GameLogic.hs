@@ -1,7 +1,7 @@
 module GameLogic where
 
 import Cards
-
+import System.Random(randomIO)
 
 data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
@@ -16,7 +16,8 @@ type Move = [(Operator, Card)]
 
 newGame :: (String, String) -> IO GameState
 newGame names = do
-  shuffledDeck <- shuffleDeck createDeck
+  seed <- randomIO :: IO Int
+  let shuffledDeck = shuffleDeck createDeck seed
   let p1 = Player { name = fst names, hand = [] }
   let p2 = Player { name = snd names, hand = [] }
   return GameState { players = [p1, p2], deck = shuffledDeck, discardPile = [] }
@@ -47,5 +48,5 @@ isValidMove move state = do
       Minus -> countTotal topCard' xs - cardValue card
 
 
-playCard :: Player -> Card -> GameState -> GameState
-playCard player card state = state { players = map (\p -> if p == player then p {hand = filter (/= card) (hand p)} else p) (players state), discardPile = card : discardPile state }
+playMove :: Move -> Int -> GameState -> GameState
+playMove move player state = undefined
