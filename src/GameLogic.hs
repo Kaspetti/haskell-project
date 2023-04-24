@@ -3,7 +3,6 @@ module GameLogic where
 import Cards
 import System.Random (randomIO)
 import Data.List ((\\))
-import Control.Monad (guard)
 
 data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
