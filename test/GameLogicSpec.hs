@@ -53,6 +53,14 @@ spec = do
       let move = [(Plus, Card Five Diamonds)]
       let error = isValidMove move 0 gameState'
       error `shouldBe` Left "Invalid move: Player does not have specified cards."
+      --Test 4
+      let move = [(Plus, Card Ten Spades), (Minus, Card Four Spades)]
+      let error = isValidMove move 0 gameState'
+      error `shouldBe` Left "Invalid move: Cannot use 10s with other cards."
+      --Test 5
+      let move = [(Plus, Card Ten Spades), (Plus, Card Ten Spades)]
+      let error = isValidMove move 0 gameState'
+      error `shouldBe` Left "Invalid move: Cannot use the same card twice."
 
   describe "playMove" $ do
     it "checks if the move is valid and plays it if it is" $ do
@@ -74,12 +82,12 @@ spec = do
   describe "parseInput" $ do
     it "parses the input string into a move" $ do
       --Test 1
-      let input = "+ AS + AD - 3H"
+      let input = "+AS+AD-3H"
       let result = [(Plus, Card Ace Spades), (Plus, Card Ace Diamonds), (Minus, Card Three Hearts)]
       parseInput input `shouldBe` Right result
       --Test 2
       let input = "++AS "
-      let result = "Invalid input"
+      let result = "Invalid input: Input must be in the form of: [+-]RS, where R is a rank and S is a suit."
       parseInput input `shouldBe` Left result
       --Test 2
       let input = ""

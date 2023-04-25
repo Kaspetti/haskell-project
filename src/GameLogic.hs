@@ -2,7 +2,7 @@ module GameLogic where
 
 import Cards
 import System.Random (randomIO)
-import Data.List ((\\), intercalate)
+import Data.List ((\\), intercalate, nub)
 import Data.List.Extra (replace)
 import Data.List.Split (chunksOf)
 import System.IO (hFlush, stdout)
@@ -63,19 +63,25 @@ isValidMove move player state = do
       total = countTotal topCard move
       playerCards = hand (players state !! player)
 
-  if not (isSubsetOf (map snd move) playerCards) then
-    Left "Invalid move: Player does not have specified cards."
-  else
-    if total == 10 then
-      return ()
-    else
-      Left ("Invalid move: " ++ show total)
-    where
-      countTotal :: Card -> Move -> Int
-      countTotal topCard' [] = cardValue topCard'
-      countTotal topCard' ((operator, card):xs) = case operator of
-        Plus -> countTotal topCard' xs + cardValue card
-        Minus -> countTotal topCard' xs - cardValue card
+  if length (nub (map snd move)) /= length move then
+    Left "Invalid move: Cannot use the same card twice."
+  else do
+    if length move > 1 && foldr (\(_, card) acc -> acc || cardValue card == 10) False move then
+      Left "Invalid move: Cannot use 10s with other cards."
+    else do
+      if not (isSubsetOf (map snd move) playerCards) then
+        Left "Invalid move: Player does not have specified cards."
+      else
+        if total == 10 then
+          return ()
+        else
+          Left ("Invalid move: " ++ show total)
+        where
+          countTotal :: Card -> Move -> Int
+          countTotal topCard' [] = cardValue topCard'
+          countTotal topCard' ((operator, card):xs) = case operator of
+            Plus -> countTotal topCard' xs + cardValue card
+            Minus -> countTotal topCard' xs - cardValue card
 
 
 playMove :: Move -> Int -> GameState -> Either String GameState
