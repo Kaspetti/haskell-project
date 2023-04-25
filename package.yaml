@@ -32,6 +32,8 @@ dependencies:
 - random-shuffle
 - hspec
 - extra
+- split
+- ansi-terminal
 
 ghc-options:
 - -Wall

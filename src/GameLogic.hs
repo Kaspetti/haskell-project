@@ -3,6 +3,13 @@ module GameLogic where
 import Cards
 import System.Random (randomIO)
 import Data.List ((\\))
+import Data.List.Extra (replace)
+import Data.List.Split (chunksOf)
+import System.IO (hFlush, stdout)
+import Data.Char (toUpper)
+import Data.Either (partitionEithers)
+import System.Console.ANSI (clearScreen)
+
 
 data Player = Player { name :: String, hand :: [Card] }
   deriving (Eq, Show)
@@ -11,6 +18,13 @@ data GameState = GameState { players :: [Player], deck :: [Card], discardPile ::
   deriving (Show, Eq)
 
 data Operator = Plus | Minus
+  deriving (Show, Eq)
+
+instance Read Operator where
+  readsPrec _ s = case s of
+    "+" -> [(Plus, "")]
+    "-" -> [(Minus, "")]
+    _ -> []
 
 type Move = [(Operator, Card)]
 
@@ -75,3 +89,52 @@ playMove move player state = do
       return gameState
 
     Left error -> Left error
+
+
+parseInput :: String -> Either String Move
+parseInput input = do
+  let moves = chunksOf 3 input
+  if foldr (\x acc -> acc && length x == 3) True moves then do
+    let (errors, moves') = partitionEithers (map parseMove moves)
+    if null errors then
+      Right moves'
+    else
+      Left (head errors)
+  else
+    Left "Invalid input: Input must be in the form of: [+-]RS, where R is a rank and S is a suit."
+  where
+    parseMove :: String -> Either String (Operator, Card)
+    parseMove move = do
+      if move !! 0 `notElem` "+-" then
+        Left ("Invalid input at [" ++ move ++ "]: First character must be either '+' or '-'.")
+      else
+        if move !! 1 `notElem` "23456789TJQKA" then
+          Left ("Invalid input at [" ++ move ++ "]: Second character must be a rank.")
+        else
+          if move !! 2 `notElem` "CDHS" then
+            Left ("Invalid input at [" ++ move ++ "]: Third character must be a suit.")
+          else
+            Right (read [move !! 0], read [move !! 1, move !! 2])
+
+
+prettyState :: GameState -> Int -> String
+prettyState state player = do
+  let player' = players state !! player
+  let hand' = hand player'
+  let topCard = last (discardPile state)
+  name player' ++ "\'s turn.\nTop card: " ++ show topCard ++ ".\nYour hand: " ++ show hand' ++ ".\n"
+
+
+gameLoop :: GameState -> Int -> String -> IO ()
+gameLoop state curPlayer msg = do
+  clearScreen
+  putStrLn msg
+  putStrLn $ prettyState state curPlayer
+  putStr ("Enter your move: " ++ show (last (discardPile state))) >> hFlush stdout
+  input <- getLine
+  let input' = map toUpper (replace " " "" input)
+  case parseInput input' of
+    Right moves -> do
+      undefined
+    Left error -> do
+      gameLoop state curPlayer error

@@ -38,6 +38,7 @@ library
   build-depends:
       JuicyPixels
     , JuicyPixels-extra
+    , ansi-terminal
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -47,6 +48,7 @@ library
     , network
     , random
     , random-shuffle
+    , split
     , vector
   default-language: Haskell2010
 
@@ -60,6 +62,7 @@ executable kaspetri-exe
   build-depends:
       JuicyPixels
     , JuicyPixels-extra
+    , ansi-terminal
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -70,6 +73,7 @@ executable kaspetri-exe
     , network
     , random
     , random-shuffle
+    , split
     , vector
   default-language: Haskell2010
 
@@ -86,6 +90,7 @@ test-suite kaspetri-test
   build-depends:
       JuicyPixels
     , JuicyPixels-extra
+    , ansi-terminal
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -96,5 +101,6 @@ test-suite kaspetri-test
     , network
     , random
     , random-shuffle
+    , split
     , vector
   default-language: Haskell2010

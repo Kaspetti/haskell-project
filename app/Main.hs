@@ -6,12 +6,13 @@ import Client
 import Cards
 import GameLogic
 
+
 main :: IO ()
 main = do
-  gameState <- newGame ("player1", "player2")
-  gameState' <- newGame ("player1", "player2")
-  print $ deck gameState
-  print $ deck gameState'
+  state <- newGame ("Player 1", "Player 2") Nothing
+  let state' = dealCards 10 state
+  gameLoop state' 0 "Welcome to Kaspetri!"
+
 
 main1 :: IO ()
 main1 = do

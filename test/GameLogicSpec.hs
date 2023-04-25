@@ -71,5 +71,17 @@ spec = do
       let result = playMove move 0 gameState'
       result `shouldBe` Left "Invalid move: 11"
 
-      --[7S,3S,7C,QC,6D,9S,TS,QD,8H,KC]
-      --[5S]
+  describe "parseInput" $ do
+    it "parses the input string into a move" $ do
+      --Test 1
+      let input = "+ AS + AD - 3H"
+      let result = [(Plus, Card Ace Spades), (Plus, Card Ace Diamonds), (Minus, Card Three Hearts)]
+      parseInput input `shouldBe` Right result
+      --Test 2
+      let input = "++AS "
+      let result = "Invalid input"
+      parseInput input `shouldBe` Left result
+      --Test 2
+      let input = ""
+      let result = []
+      parseInput input `shouldBe` Right result
