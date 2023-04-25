@@ -2,13 +2,14 @@ module GameLogic where
 
 import Cards
 import System.Random (randomIO)
-import Data.List ((\\))
+import Data.List ((\\), intercalate)
 import Data.List.Extra (replace)
 import Data.List.Split (chunksOf)
 import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
+import Data.Maybe (maybe)
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -32,7 +33,7 @@ type Move = [(Operator, Card)]
 newGame :: (String, String) -> Maybe Int -> IO GameState
 newGame names seed = do
   let p1 = Player { name = fst names, hand = [] }
-  let p2 = Player { name = snd names, hand = [] }
+      p2 = Player { name = snd names, hand = [] }
 
   case seed of
     Just seed' -> return GameState { players = [p1, p2], deck = shuffleDeck createDeck seed', discardPile = [] }
@@ -48,7 +49,7 @@ dealCards n state = do
   let p1 = (head (players state)) { hand = hand1 }
   let p2 = (players state !! 1) { hand = hand2 }
   let discardPile' = [head deck'']
-  state { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
+  GameState { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
 
 
 isSubsetOf :: Eq a => [a] -> [a] -> Bool
@@ -59,8 +60,8 @@ isSubsetOf (x:xs) ys = x `elem` ys && isSubsetOf xs ys
 isValidMove :: Move -> Int -> GameState -> Either String ()
 isValidMove move player state = do
   let topCard = last (discardPile state)
-  let total = countTotal topCard move
-  let playerCards = hand (players state !! player)
+      total = countTotal topCard move
+      playerCards = hand (players state !! player)
 
   if not (isSubsetOf (map snd move) playerCards) then
     Left "Invalid move: Player does not have specified cards."
@@ -82,10 +83,10 @@ playMove move player state = do
   case isValidMove move player state of
     Right () -> do
       let cards = map snd move
-      let player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
-      let discardPile' = discardPile state ++ cards
-      let players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
-      let gameState = state { players = players', discardPile = discardPile' }
+          player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
+          discardPile' = discardPile state ++ cards
+          players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
+          gameState = state { players = players', discardPile = discardPile' }
       return gameState
 
     Left error -> Left error
@@ -120,10 +121,12 @@ parseInput input = do
 prettyState :: GameState -> Int -> String
 prettyState state player = do
   let player' = players state !! player
-  let hand' = hand player'
-  let topCard = last (discardPile state)
-  name player' ++ "\'s turn.\nTop card: " ++ show topCard ++ ".\nYour hand: " ++ show hand' ++ ".\n"
-
+      hand' = hand player'
+      topCard = last (discardPile state)
+      playerText = name player' ++ "\'s turn."
+      topCardText = "Top card: " ++ show topCard ++ "."
+      handText = "Your hand: " ++ show hand' ++ "."
+  intercalate "\n" [playerText, topCardText, handText]
 
 gameLoop :: GameState -> Int -> String -> IO ()
 gameLoop state curPlayer msg = do
