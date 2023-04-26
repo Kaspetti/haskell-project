@@ -9,7 +9,7 @@ import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
-import Data.Maybe (maybe)
+import Control.Monad (guard)
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -62,6 +62,7 @@ isValidMove move player state = do
   let topCard = last (discardPile state)
       total = countTotal topCard move
       playerCards = hand (players state !! player)
+      cardsNotInHand = map snd move \\ playerCards
 
   if length (nub (map snd move)) /= length move then
     Left "Invalid move: Cannot use the same card twice."
@@ -69,8 +70,8 @@ isValidMove move player state = do
     if length move > 1 && foldr (\(_, card) acc -> acc || cardValue card == 10) False move then
       Left "Invalid move: Cannot use 10s with other cards."
     else do
-      if not (isSubsetOf (map snd move) playerCards) then
-        Left "Invalid move: Player does not have specified cards."
+      if not (null cardsNotInHand) then
+        Left ("Invalid move: Player does not have specified cards: " ++ intercalate ", " (map show cardsNotInHand))
       else
         if total == 10 then
           return ()
@@ -144,6 +145,11 @@ gameLoop state curPlayer msg = do
   let input' = map toUpper (replace " " "" input)
   case parseInput input' of
     Right moves -> do
-      undefined
+      let validMoves = isValidMove moves curPlayer state
+      case validMoves of
+        Right _ -> do
+          undefined
+        Left error -> do
+          gameLoop state curPlayer error
     Left error -> do
       gameLoop state curPlayer error
