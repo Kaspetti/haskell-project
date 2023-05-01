@@ -49,7 +49,7 @@ parseRank 'T' = Just Ten
 parseRank 'J' = Just Jack
 parseRank 'Q' = Just Queen
 parseRank 'K' = Just King
-parseRang _ = Nothing
+parseRank _ = Nothing
 
 
 parseSuit :: Char -> Maybe Suit
