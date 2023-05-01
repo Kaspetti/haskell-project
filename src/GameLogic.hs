@@ -9,7 +9,6 @@ import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
-import Control.Monad (guard)
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -96,7 +95,7 @@ playMove move player state = do
           gameState = state { players = players', discardPile = discardPile' }
       return gameState
 
-    Left error -> Left error
+    Left error' -> Left error'
 
 
 parseInput :: String -> Either String Move
@@ -149,7 +148,7 @@ gameLoop state curPlayer msg = do
       case validMoves of
         Right _ -> do
           undefined
-        Left error -> do
-          gameLoop state curPlayer error
-    Left error -> do
-      gameLoop state curPlayer error
+        Left error' -> do
+          gameLoop state curPlayer error'
+    Left error' -> do
+      gameLoop state curPlayer error'

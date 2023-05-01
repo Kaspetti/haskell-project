@@ -1,6 +1,5 @@
 module Main (main) where
 
-import AsciiCreator
 import Server
 import Client
 import Cards
