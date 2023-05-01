@@ -85,9 +85,9 @@ isValidMove move player state = do
 
 
 playMove :: Move -> Int -> GameState -> Either String GameState
-playMove move player state = do
+playMove move player state = do 
   case isValidMove move player state of
-    Right () -> do
+    Right () -> do 
       let cards = map snd move
           player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
           discardPile' = discardPile state ++ cards
