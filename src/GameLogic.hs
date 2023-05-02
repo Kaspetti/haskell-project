@@ -45,8 +45,8 @@ dealCards :: Int -> GameState -> GameState
 dealCards n state = do
   let (hand1, deck') = splitAt n (deck state)
   let (hand2, deck'') = splitAt n deck'
-  let p1 = (head (players state)) { hand = hand1 }
-  let p2 = (players state !! 1) { hand = hand2 }
+  let p1 = (head (players state)) { hand = hand (head (players state)) ++ hand1 }
+  let p2 = (players state !! 1) { hand = hand (players state !! 1) ++ hand2 }
   let discardPile' = [head deck'']
   GameState { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
 
