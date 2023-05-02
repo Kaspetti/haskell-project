@@ -85,17 +85,23 @@ isValidMove move player state = do
 
 
 playMove :: Move -> Int -> GameState -> Either String GameState
-playMove move player state = do 
-  case isValidMove move player state of
-    Right () -> do 
-      let cards = map snd move
-          player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
-          discardPile' = discardPile state ++ cards
-          players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
-          gameState = state { players = players', discardPile = discardPile' }
-      return gameState
+playMove move player state = do
+  if length move == 1 && rank (snd (head move)) == Ten then do
+    let card = snd (head move)
+        gameState = dealCards 3 state
+        gameState' = gameState { discardPile = discardPile gameState ++ [card] }
+    return gameState'
+  else do
+    case isValidMove move player state of
+      Right () -> do 
+        let cards = map snd move
+            player' = (players state !! player) { hand = hand (players state !! player) \\ cards }
+            discardPile' = discardPile state ++ cards
+            players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
+            gameState = state { players = players', discardPile = discardPile' }
+        return gameState
 
-    Left error' -> Left error'
+      Left error' -> Left error'
 
 
 parseInput :: String -> Either String Move
@@ -144,10 +150,10 @@ gameLoop state curPlayer msg = do
   let input' = map toUpper (replace " " "" input)
   case parseInput input' of
     Right moves -> do
-      let validMoves = isValidMove moves curPlayer state
-      case validMoves of
-        Right _ -> do
-          undefined
+      let play = playMove moves curPlayer state
+      case play of
+        Right state' -> do
+          gameLoop state' ((curPlayer + 1) `mod` 2) ""
         Left error' -> do
           gameLoop state curPlayer error'
     Left error' -> do
