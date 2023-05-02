@@ -75,7 +75,7 @@ isValidMove move player state = do
         if total == 10 then
           return ()
         else
-          Left ("Invalid move: " ++ show total)
+          Left ("Invalid move: Total was " ++ show total)
         where
           countTotal :: Card -> Move -> Int
           countTotal topCard' [] = cardValue topCard'
