@@ -1,4 +1,4 @@
-module GameLogic (newGame, gameLoop) where 
+module GameLogic (dealCards, newGame, gameLoop) where 
 
 import Cards
 import System.Random (randomIO)
