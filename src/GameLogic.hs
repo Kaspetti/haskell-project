@@ -1,4 +1,4 @@
-module GameLogic where
+module GameLogic (newGame, gameLoop) where 
 
 import Cards
 import System.Random (randomIO)
@@ -49,11 +49,6 @@ dealCards n state = do
   let p2 = (players state !! 1) { hand = hand (players state !! 1) ++ hand2 }
   let discardPile' = [head deck'']
   GameState { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
-
-
-isSubsetOf :: Eq a => [a] -> [a] -> Bool
-isSubsetOf [] _ = True
-isSubsetOf (x:xs) ys = x `elem` ys && isSubsetOf xs ys
 
 
 isValidMove :: Move -> Int -> GameState -> Either String ()
@@ -139,6 +134,7 @@ prettyState state player = do
       topCardText = "Top card: " ++ show topCard ++ "."
       handText = "Your hand: " ++ show hand' ++ "."
   intercalate "\n" [playerText, topCardText, handText]
+
 
 gameLoop :: GameState -> Int -> String -> IO ()
 gameLoop state curPlayer msg = do
