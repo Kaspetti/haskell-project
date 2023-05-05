@@ -150,29 +150,45 @@ passTurn state player = do
   state' { players = players', deck = tail (deck state') }
 
 
-gameLoop :: GameState -> Int -> String -> Int -> IO ()
-gameLoop state curPlayer msg passCounter = do
-  clearScreen
-  putStrLn msg
-  putStrLn $ prettyState state curPlayer
-  putStr ("Enter your move: " ++ show (last (discardPile state))) >> hFlush stdout
-  input <- getLine
-  let input' = map toUpper (replace " " "" input)
+winCondition :: GameState -> Int -> Bool
+winCondition state player = do
+  let player' = players state !! player
+  null (hand player')
 
-  if input' == "" then do
-    if null (deck state) && length (discardPile state) == 1 then do
-      gameLoop state ((curPlayer + 1) `mod` 2) "Player passed their turn but there are no cards to draw." (passCounter + 1)
-    else do
-      let state' = passTurn state curPlayer
-      gameLoop state' ((curPlayer + 1) `mod` 2) (show (discardPile state')) 0
-  else do
-    case parseInput input' of
-      Right moves -> do
-        let play = playMove moves curPlayer state
-        case play of
-          Right state' -> do
-            gameLoop state' ((curPlayer + 1) `mod` 2) "" 0
+
+gameLoop :: GameState -> Int -> String -> Int -> IO ()
+gameLoop state curPlayer msg passCounter
+  -- End the game with a draw if both players have passed their turn 3 times.
+  | passCounter == 6 = do
+      putStrLn "Game over. Draw: Both players passed their turn 3 times."
+  | otherwise = do
+      clearScreen  
+      putStrLn msg
+      putStrLn $ prettyState state curPlayer
+      putStr ("Enter your move: " ++ show (last (discardPile state))) >> hFlush stdout
+      input <- getLine
+      let input' = map toUpper (replace " " "" input)
+
+      if input' == "" then do
+        if null (deck state) && length (discardPile state) == 1 then do
+          let msg' = name (players state !! curPlayer) ++ " passed their turn but there are no cards to draw."
+          gameLoop state ((curPlayer + 1) `mod` 2) msg' (passCounter + 1)
+        else do
+          let state' = passTurn state curPlayer
+              msg' = name (players state' !! curPlayer) ++ " passed their turn."
+          gameLoop state' ((curPlayer + 1) `mod` 2) msg' 0
+      else do
+        case parseInput input' of
+          Right moves -> do
+            let play = playMove moves curPlayer state
+            case play of
+              Right state' -> do
+                if winCondition state' curPlayer then do
+                  putStrLn $ name (players state' !! curPlayer) ++ " won the game!"
+                else do
+                  let msg' = name (players state !! curPlayer) ++ " played " ++ show (last (discardPile state)) ++ input' ++ "."
+                  gameLoop state' ((curPlayer + 1) `mod` 2) msg' 0
+              Left error' -> do
+                gameLoop state curPlayer error' 0
           Left error' -> do
-            gameLoop state curPlayer error' 0
-      Left error' -> do
-        gameLoop state curPlayer error' 0 
+            gameLoop state curPlayer error' 0 
