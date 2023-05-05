@@ -9,6 +9,7 @@ import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
+import Control.Monad (when)
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -136,21 +137,42 @@ prettyState state player = do
   intercalate "\n" [playerText, topCardText, handText]
 
 
-gameLoop :: GameState -> Int -> String -> IO ()
-gameLoop state curPlayer msg = do
+shuffleDeckIfEmpty :: GameState -> GameState
+shuffleDeckIfEmpty state | null (deck state) = state { deck = shuffleDeck (init (discardPile state)) 0, discardPile = [last (discardPile state)] }
+                         | otherwise = state
+
+
+passTurn :: GameState -> Int -> GameState
+passTurn state player = do
+  let state' = shuffleDeckIfEmpty state
+      player' = (players state' !! player) { hand = hand (players state' !! player) ++ [head (deck state')] }
+      players' = take player (players state') ++ [player'] ++ drop (player + 1) (players state')
+  state' { players = players', deck = tail (deck state') }
+
+
+gameLoop :: GameState -> Int -> String -> Int -> IO ()
+gameLoop state curPlayer msg passCounter = do
   clearScreen
   putStrLn msg
   putStrLn $ prettyState state curPlayer
   putStr ("Enter your move: " ++ show (last (discardPile state))) >> hFlush stdout
   input <- getLine
   let input' = map toUpper (replace " " "" input)
-  case parseInput input' of
-    Right moves -> do
-      let play = playMove moves curPlayer state
-      case play of
-        Right state' -> do
-          gameLoop state' ((curPlayer + 1) `mod` 2) ""
-        Left error' -> do
-          gameLoop state curPlayer error'
-    Left error' -> do
-      gameLoop state curPlayer error'
+
+  if input' == "" then do
+    if null (deck state) && length (discardPile state) == 1 then do
+      gameLoop state ((curPlayer + 1) `mod` 2) "Player passed their turn but there are no cards to draw." (passCounter + 1)
+    else do
+      let state' = passTurn state curPlayer
+      gameLoop state' ((curPlayer + 1) `mod` 2) (show (discardPile state')) 0
+  else do
+    case parseInput input' of
+      Right moves -> do
+        let play = playMove moves curPlayer state
+        case play of
+          Right state' -> do
+            gameLoop state' ((curPlayer + 1) `mod` 2) "" 0
+          Left error' -> do
+            gameLoop state curPlayer error' 0
+      Left error' -> do
+        gameLoop state curPlayer error' 0 
