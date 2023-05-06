@@ -2,6 +2,7 @@ module Cards (createDeck, shuffleDeck, cardValue, parseCard, Card(..), Rank(..),
 
 import System.Random (mkStdGen)
 import System.Random.Shuffle (shuffle')
+import System.Random (randomIO)
 
 data Suit = Spades | Hearts | Clubs | Diamonds
   deriving (Enum, Eq)
@@ -76,7 +77,13 @@ createDeck :: [Card]
 createDeck = [Card rank suit | rank <- [Ace .. King], suit <- [Spades .. Diamonds]]
 
 
-shuffleDeck :: [Card] -> Int -> [Card]
-shuffleDeck deck seed = do
-  let gen = mkStdGen seed
-    in shuffle' deck (length deck) gen
+shuffleDeck :: [Card] -> Maybe Int -> IO [Card]
+shuffleDeck deck seed =
+  case seed of 
+    Just seed' -> do
+      let gen = mkStdGen seed'
+      return $ shuffle' deck (length deck) gen
+    Nothing -> do
+      seed' <- randomIO
+      let gen = mkStdGen seed'
+      return $ shuffle' deck (length deck) gen

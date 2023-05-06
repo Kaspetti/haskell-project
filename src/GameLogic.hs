@@ -9,7 +9,6 @@ import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
-import Control.Monad (when)
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -31,16 +30,12 @@ type Move = [(Operator, Card)]
 
 
 newGame :: (String, String) -> Maybe Int -> IO GameState
-newGame names seed = do
+newGame names seed = do 
   let p1 = Player { name = fst names, hand = [] }
       p2 = Player { name = snd names, hand = [] }
-
-  case seed of
-    Just seed' -> return GameState { players = [p1, p2], deck = shuffleDeck createDeck seed', discardPile = [] }
-    Nothing -> do
-      seed' <- randomIO
-      return GameState { players = [p1, p2], deck = shuffleDeck createDeck seed', discardPile = [] }
-
+  deck' <- shuffleDeck createDeck seed
+  return GameState { players = [p1, p2], deck = deck', discardPile = [] } 
+  
 
 dealCards :: Int -> GameState -> GameState
 dealCards n state = do
@@ -83,6 +78,7 @@ isValidMove move player state = do
 playMove :: Move -> Int -> GameState -> Either String GameState
 playMove move player state = do
   if length move == 1 && rank (snd (head move)) == Ten then do
+    --TODO: Check if there are 6 cards left in the deck
     let card = snd (head move)
         gameState = dealCards 3 state
         gameState' = gameState { discardPile = discardPile gameState ++ [card] }
@@ -137,17 +133,11 @@ prettyState state player = do
   intercalate "\n" [playerText, topCardText, handText]
 
 
-shuffleDeckIfEmpty :: GameState -> GameState
-shuffleDeckIfEmpty state | null (deck state) = state { deck = shuffleDeck (init (discardPile state)) 0, discardPile = [last (discardPile state)] }
-                         | otherwise = state
-
-
 passTurn :: GameState -> Int -> GameState
 passTurn state player = do
-  let state' = shuffleDeckIfEmpty state
-      player' = (players state' !! player) { hand = hand (players state' !! player) ++ [head (deck state')] }
-      players' = take player (players state') ++ [player'] ++ drop (player + 1) (players state')
-  state' { players = players', deck = tail (deck state') }
+  let player' = (players state !! player) { hand = hand (players state !! player) ++ [head (deck state)] }
+      players' = take player (players state) ++ [player'] ++ drop (player + 1) (players state)
+  state { players = players', deck = tail (deck state) }
 
 
 winCondition :: GameState -> Int -> Bool
@@ -174,9 +164,17 @@ gameLoop state curPlayer msg passCounter
           let msg' = name (players state !! curPlayer) ++ " passed their turn but there are no cards to draw."
           gameLoop state ((curPlayer + 1) `mod` 2) msg' (passCounter + 1)
         else do
-          let state' = passTurn state curPlayer
-              msg' = name (players state' !! curPlayer) ++ " passed their turn."
-          gameLoop state' ((curPlayer + 1) `mod` 2) msg' 0
+          --Shuffle the deck before drawing if the deck is empty.
+          if null (deck state) then do
+            deck' <- shuffleDeck (init (discardPile state)) Nothing
+            let discardPile' = [last (discardPile state)]
+                state' = passTurn (state { deck = deck', discardPile = discardPile' }) curPlayer
+                msg' = name (players state' !! curPlayer) ++ " passed their turn."
+            gameLoop state' ((curPlayer + 1) `mod` 2) msg' 0
+          else do
+            let state' = passTurn state curPlayer
+                msg' = name (players state' !! curPlayer) ++ " passed their turn."
+            gameLoop state' ((curPlayer + 1) `mod` 2) msg' 0
       else do
         case parseInput input' of
           Right moves -> do
