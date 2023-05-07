@@ -1,10 +1,10 @@
 name:                kaspetri
 version:             0.1.0.0
-github:              "githubuser/kaspetri"
+github:              "Kaspetti/haskell-project" 
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2023 Author name here"
+author:              "Kaspar Tvedt Moberg"
+maintainer:          "kaspeti123@gmail.com"
+copyright:           "2023 Kaspar Tvedt Moberg"
 
 extra-source-files:
 - README.md
@@ -21,10 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- filepath
-- network
-- bytestring
-- binary
 - random
 - random-shuffle
   #- hspec

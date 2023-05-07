@@ -7,11 +7,11 @@ cabal-version: 1.12
 name:           kaspetri
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/kaspetri#readme>
-homepage:       https://github.com/githubuser/kaspetri#readme
-bug-reports:    https://github.com/githubuser/kaspetri/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2023 Author name here
+homepage:       https://github.com/Kaspetti/haskell-project#readme
+bug-reports:    https://github.com/Kaspetti/haskell-project/issues
+author:         Kaspar Tvedt Moberg
+maintainer:     kaspeti123@gmail.com
+copyright:      2023 Kaspar Tvedt Moberg
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -21,14 +21,12 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/kaspetri
+  location: https://github.com/Kaspetti/haskell-project
 
 library
   exposed-modules:
       Cards
-      Client
       GameLogic
-      Server
   other-modules:
       Paths_kaspetri
   hs-source-dirs:
@@ -37,11 +35,7 @@ library
   build-depends:
       ansi-terminal
     , base >=4.7 && <5
-    , binary
-    , bytestring
     , extra
-    , filepath
-    , network
     , random
     , random-shuffle
     , regex-tdfa
@@ -58,12 +52,8 @@ executable kaspetri-exe
   build-depends:
       ansi-terminal
     , base >=4.7 && <5
-    , binary
-    , bytestring
     , extra
-    , filepath
     , kaspetri
-    , network
     , random
     , random-shuffle
     , regex-tdfa
@@ -83,12 +73,8 @@ test-suite kaspetri-test
   build-depends:
       ansi-terminal
     , base >=4.7 && <5
-    , binary
-    , bytestring
     , extra
-    , filepath
     , kaspetri
-    , network
     , random
     , random-shuffle
     , regex-tdfa
