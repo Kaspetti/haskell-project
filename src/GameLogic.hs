@@ -119,7 +119,7 @@ playMove move player state = do
 parseInput :: String -> Either String Move
 parseInput input = do
   -- Input must be in the form of [+-]RS where R is a rank and S is a suit
-  let pattern = "([+-][1-9TJQKA][CDHS])"
+  let pattern = "([+-][2-9TJQKA][CDHS])"
       groups = chunksOf 3 input 
       (matches, nonMatches) = partition (=~ pattern) groups
   if null nonMatches then
