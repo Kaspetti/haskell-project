@@ -1,14 +1,14 @@
 module GameLogic (dealCards, newGame, gameLoop) where 
 
 import Cards
-import System.Random (randomIO)
-import Data.List ((\\), intercalate, nub)
+import Data.List ((\\), intercalate, nub, partition)
 import Data.List.Extra (replace)
 import Data.List.Split (chunksOf)
 import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
 import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
+import Text.Regex.TDFA ( (=~) )
 
 
 data Player = Player { name :: String, hand :: [Card] }
@@ -40,10 +40,10 @@ newGame names seed = do
 dealCards :: Int -> GameState -> GameState
 dealCards n state = do
   let (hand1, deck') = splitAt n (deck state)
-  let (hand2, deck'') = splitAt n deck'
-  let p1 = (head (players state)) { hand = hand (head (players state)) ++ hand1 }
-  let p2 = (players state !! 1) { hand = hand (players state !! 1) ++ hand2 }
-  let discardPile' = [head deck'']
+      (hand2, deck'') = splitAt n deck'
+      p1 = (head (players state)) { hand = hand (head (players state)) ++ hand1 }
+      p2 = (players state !! 1) { hand = hand (players state !! 1) ++ hand2 }
+      discardPile' = [head deck'']
   GameState { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
 
 
@@ -98,28 +98,14 @@ playMove move player state = do
 
 parseInput :: String -> Either String Move
 parseInput input = do
-  let moves = chunksOf 3 input
-  if foldr (\x acc -> acc && length x == 3) True moves then do
-    let (errors, moves') = partitionEithers (map parseMove moves)
-    if null errors then
-      Right moves'
-    else
-      Left (head errors)
+  -- Input must be in the form of [+-]RS where R is a rank and S is a suit
+  let pattern = "([+-][1-9TJQKA][CDHS])"
+      groups = chunksOf 3 input 
+      (matches, nonMatches) = partition (=~ pattern) groups
+  if null nonMatches then
+    Right (map (\x -> (read [x !! 0], read [x !! 1, x !! 2])) matches)
   else
-    Left "Invalid input: Input must be in the form of: [+-]RS, where R is a rank and S is a suit."
-  where
-    parseMove :: String -> Either String (Operator, Card)
-    parseMove move = do
-      if move !! 0 `notElem` "+-" then
-        Left ("Invalid input at [" ++ move ++ "]: First character must be either '+' or '-'.")
-      else
-        if move !! 1 `notElem` "23456789TJQKA" then
-          Left ("Invalid input at [" ++ move ++ "]: Second character must be a rank.")
-        else
-          if move !! 2 `notElem` "CDHS" then
-            Left ("Invalid input at [" ++ move ++ "]: Third character must be a suit.")
-          else
-            Right (read [move !! 0], read [move !! 1, move !! 2])
+    Left $ "Error at: " ++ show (head nonMatches) ++ " | " ++  "Invalid input: Input must be in the form of: [+-]RS, where R is a rank and S is a suit."
 
 
 prettyState :: GameState -> Int -> String

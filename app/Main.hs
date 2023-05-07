@@ -1,6 +1,8 @@
 module Main (main) where
 
 import GameLogic
+import Text.Regex.TDFA 
+import Data.List.Split (chunksOf)
 
 
 main :: IO ()
