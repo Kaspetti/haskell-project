@@ -37,7 +37,9 @@ newGame names seed = do
       state' = dealCards 10 state
   return state' {deck = drop 1 (deck state'), discardPile = [head (deck state')] }
   
-
+-- Deals the requested amount of cards to the players
+-- If there are not enough cards in the deck, the remaining cards are dealt
+-- Will never deal an uneven amount of cards to the players 
 dealCards :: Int -> GameState -> GameState
 dealCards n state = do
   let count = min (length (deck state) `div` 2) n
