@@ -1,12 +1,11 @@
 module GameLogic (dealCards, newGame, gameLoop) where 
 
-import Cards
+import Cards ( Card(rank), Rank(Ten), cardValue, createDeck, shuffleDeck )
 import Data.List ((\\), intercalate, nub, partition)
 import Data.List.Extra (replace)
 import Data.List.Split (chunksOf)
 import System.IO (hFlush, stdout)
 import Data.Char (toUpper)
-import Data.Either (partitionEithers)
 import System.Console.ANSI (clearScreen)
 import Text.Regex.TDFA ( (=~) )
 
@@ -34,17 +33,19 @@ newGame names seed = do
   let p1 = Player { name = fst names, hand = [] }
       p2 = Player { name = snd names, hand = [] }
   deck' <- shuffleDeck createDeck seed
-  return GameState { players = [p1, p2], deck = deck', discardPile = [] } 
+  let state = GameState { players = [p1, p2], deck = deck', discardPile = [] }
+      state' = dealCards 10 state
+  return state' {deck = drop 1 (deck state'), discardPile = [head (deck state')] }
   
 
 dealCards :: Int -> GameState -> GameState
 dealCards n state = do
-  let (hand1, deck') = splitAt n (deck state)
-      (hand2, deck'') = splitAt n deck'
+  let count = min (length (deck state) `div` 2) n
+      (hand1, deck') = splitAt count (deck state)
+      (hand2, deck'') = splitAt count deck'
       p1 = (head (players state)) { hand = hand (head (players state)) ++ hand1 }
       p2 = (players state !! 1) { hand = hand (players state !! 1) ++ hand2 }
-      discardPile' = [head deck'']
-  GameState { players = [p1, p2], deck = tail deck'', discardPile = discardPile' }
+  state { players = [p1, p2], deck = deck'' }
 
 
 isValidMove :: Move -> Int -> GameState -> Either String ()
@@ -78,10 +79,11 @@ isValidMove move player state = do
 playMove :: Move -> Int -> GameState -> Either String GameState
 playMove move player state = do
   if length move == 1 && rank (snd (head move)) == Ten then do
-    --TODO: Check if there are 6 cards left in the deck
     let card = snd (head move)
         gameState = dealCards 3 state
-        gameState' = gameState { discardPile = discardPile gameState ++ [card] }
+        player' = (players gameState !! player) { hand = hand (players gameState !! player) \\ [card] }
+        players' = take player (players gameState) ++ [player'] ++ drop (player + 1) (players gameState)
+        gameState' = gameState {players = players', discardPile = discardPile gameState ++ [card] }
     return gameState'
   else do
     case isValidMove move player state of
@@ -138,7 +140,7 @@ gameLoop state curPlayer msg passCounter
   | passCounter == 6 = do
       putStrLn "Game over. Draw: Both players passed their turn 3 times."
   | otherwise = do
-      clearScreen  
+      clearScreen
       putStrLn msg
       putStrLn $ prettyState state curPlayer
       putStr ("Enter your move: " ++ show (last (discardPile state))) >> hFlush stdout
