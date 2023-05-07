@@ -25,9 +25,13 @@ instance Read Operator where
     "-" -> [(Minus, "")]
     _ -> []
 
+-- A move is a list of tuples where the first element is an operator (+-)
+-- and the second element is a card.
 type Move = [(Operator, Card)]
 
 
+-- Creates a new GameState with the provided player names and a seed
+-- If the seed is Nothing, the shuffleDeck method will generate a random seed
 newGame :: (String, String) -> Maybe Int -> IO GameState
 newGame names seed = do 
   let p1 = Player { name = fst names, hand = [] }
@@ -37,6 +41,7 @@ newGame names seed = do
       state' = dealCards 10 state
   return state' {deck = drop 1 (deck state'), discardPile = [head (deck state')] }
   
+
 -- Deals the requested amount of cards to the players
 -- If there are not enough cards in the deck, the remaining cards are dealt
 -- Will never deal an uneven amount of cards to the players 
@@ -50,6 +55,10 @@ dealCards n state = do
   state { players = [p1, p2], deck = deck'' }
 
 
+-- Checks if a move is valid. A move is valid if:
+-- 1. Each card in the list of moves is unique and in the player's hand 
+-- 2. The total of the cards is 10
+-- 3. If the move is a 10, it must be the only card in the move
 isValidMove :: Move -> Int -> GameState -> Either String ()
 isValidMove move player state = do
   let topCard = last (discardPile state)
@@ -78,6 +87,11 @@ isValidMove move player state = do
             Minus -> countTotal topCard' xs - cardValue card
 
 
+-- Checks if a move is valid and plays it if it is
+-- If the move is a single 10, each player is dealt 3 cards and the move is played.
+--
+-- Returns the new GameState if the move was valid
+-- Returns an error message if the move was invalid
 playMove :: Move -> Int -> GameState -> Either String GameState
 playMove move player state = do
   if length move == 1 && rank (snd (head move)) == Ten then do
@@ -100,6 +114,8 @@ playMove move player state = do
       Left error' -> Left error'
 
 
+-- Uses regex to parse the input string into a list of moves
+-- Returns an error message if the input is invalid
 parseInput :: String -> Either String Move
 parseInput input = do
   -- Input must be in the form of [+-]RS where R is a rank and S is a suit
@@ -112,6 +128,7 @@ parseInput input = do
     Left $ "Error at: " ++ show (head nonMatches) ++ " | " ++  "Invalid input: Input must be in the form of: [+-]RS, where R is a rank and S is a suit."
 
 
+-- Creates a pretty string representation of the GameState
 prettyState :: GameState -> Int -> String
 prettyState state player = do
   let player' = players state !! player
@@ -123,6 +140,8 @@ prettyState state player = do
   intercalate "\n" [playerText, topCardText, handText]
 
 
+-- Passes the turn to the next player and deals them a card
+-- Is only called if their is at least one card in the deck
 passTurn :: GameState -> Int -> GameState
 passTurn state player = do
   let player' = (players state !! player) { hand = hand (players state !! player) ++ [head (deck state)] }
@@ -150,6 +169,8 @@ gameLoop state curPlayer msg passCounter
       let input' = map toUpper (replace " " "" input)
 
       if input' == "" then do
+        -- If the player passes their turn, check if there are any cards left to draw.
+        -- If there are no cards, pass the turn and increase the pass counter.
         if null (deck state) && length (discardPile state) == 1 then do
           let msg' = name (players state !! curPlayer) ++ " passed their turn but there are no cards to draw."
           gameLoop state ((curPlayer + 1) `mod` 2) msg' (passCounter + 1)

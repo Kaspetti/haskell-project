@@ -1,8 +1,7 @@
 module Cards (createDeck, shuffleDeck, cardValue, parseCard, Card(..), Rank(..), Suit(..)) where
 
-import System.Random (mkStdGen)
+import System.Random (mkStdGen, randomIO)
 import System.Random.Shuffle (shuffle')
-import System.Random (randomIO)
 
 data Suit = Spades | Hearts | Clubs | Diamonds
   deriving (Enum, Eq)
@@ -73,10 +72,13 @@ cardValue :: Card -> Int
 cardValue (Card rank _) = fromEnum rank + 1
 
 
+-- Creates a new deck of all 52 cards
 createDeck :: [Card]
 createDeck = [Card rank suit | rank <- [Ace .. King], suit <- [Spades .. Diamonds]]
 
 
+-- Shuffles the deck using the provided seed
+-- If the seed is Nothing, a random seed is generated
 shuffleDeck :: [Card] -> Maybe Int -> IO [Card]
 shuffleDeck deck seed =
   case seed of 
